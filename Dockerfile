@@ -1,7 +1,9 @@
-FROM quay.io/letsencrypt/letsencrypt
-MAINTAINER kvaps <kvapss@gmail.com>
+FROM certbot/certbot:v1.2.0
 
-RUN apt-get update && apt-get -y install docker.io
+RUN apk add bash
+RUN apk add grep
+RUN apk add --update coreutils
+RUN rm -rf /var/cache/apk/*
 
 ADD start.sh /bin/start.sh
 
