@@ -15,8 +15,10 @@ if [ -z "$WEBROOT_PATH" ] ; then
   exit 1
 fi
 
-if [[ -z $STAGING ]]; then
-  echo "Using the staging environment"
+# Test if LETSENCRYPT_STAGING is set (even if it is set to '')
+if [ ! -z "${LETSENCRYPT_STAGING+x}" ]; then
+  echo "NOTE: Environment variable 'LETSENCRYPT_STAGING' set!"
+  echo "Using the staging environment..."
   ADDITIONAL="--staging"
 fi
 
