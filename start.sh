@@ -49,10 +49,17 @@ le_hook() {
         done
     ))
     
+    echo "[INFO] Running hooks for linked containers..."
     for container in ${containers[@]}; do
+        # Get container name: docker defines MYCONTAINER_NAME=<my container name>
+        container_name_var=${container}_NAME
+        container_name=${!container_name_var}
+        # Escape container name for usage in sed
+        container_escaped=$(sed -e 's/[&\\/]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$container_name")
+
         command=$(eval echo \$${container}_ENV_LE_RENEW_HOOK)
-        command=$(echo $command | sed "s/@CONTAINER_NAME@/${container,,}/g")
-        echo "[INFO] Run: $command"
+        command=$(echo $command | sed "s/@CONTAINER_NAME@/${container_escaped}/g")
+        echo "[INFO] Running hook for '$container_name': '$command'"
         eval $command
     done
 }
@@ -84,7 +91,7 @@ le_check() {
         if [ "$days_exp" -gt "$exp_limit" ] ; then
             echo "The certificate is up to date, no need for renewal ($days_exp days left)."
         else
-            echo "The certificate for $DARRAYS is about to expire soon. Starting webroot renewal script..."
+            echo "The certificate for $DARRAYS is about to expire soon ($days_exp days left). Starting webroot renewal script..."
             le_renew
             echo "Renewal process finished for domain $DARRAYS"
         fi
